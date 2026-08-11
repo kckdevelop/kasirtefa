@@ -198,6 +198,12 @@
                     <!-- User Dropdown Info -->
                     <div class="flex items-center gap-3 border-l border-slate-200 pl-4">
                         <span class="text-xs font-semibold text-slate-600 hidden sm:inline">{{ auth()->user()?->nama ?? auth()->user()?->name }}</span>
+                        <form action="{{ route('logout') }}" method="POST" class="inline">
+                            @csrf
+                            <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 font-medium text-xs border border-slate-200 hover:border-rose-200 transition-all flex items-center gap-1.5" title="Logout dari sistem">
+                                <i class="fa-solid fa-right-from-bracket"></i> <span class="hidden sm:inline">Logout</span>
+                            </button>
+                        </form>
                     </div>
                 </div>
             </header>

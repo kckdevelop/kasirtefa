@@ -23,14 +23,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Role;
 
-Route::get('/', function () {
-    return redirect()->route('login');
-});
+Route::get('/', [AuthWebController::class, 'showLogin'])->name('home');
 
 // Auth Routes
 Route::get('/login', [AuthWebController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthWebController::class, 'login']);
-Route::post('/logout', [AuthWebController::class, 'logout'])->name('logout');
+Route::match(['get', 'post'], '/logout', [AuthWebController::class, 'logout'])->name('logout');
 
 // Protected Web Admin Routes
 Route::middleware('auth')->group(function () {
