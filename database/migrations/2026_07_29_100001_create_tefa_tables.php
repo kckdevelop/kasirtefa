@@ -108,7 +108,7 @@ return new class extends Migration
         Schema::create('detail_penjualan', function (Blueprint $table) {
             $table->id();
             $table->foreignId('transaksi_penjualan_id')->constrained('transaksi_penjualan')->onDelete('cascade');
-            $table->foreignId('produk_id')->constrained('produk')->onDelete('cascade');
+            $table->foreignId('produk_id')->nullable()->constrained('produk')->onDelete('cascade');
             $table->decimal('harga_satuan', 15, 2);
             $table->integer('jumlah');
             $table->decimal('subtotal', 15, 2);
