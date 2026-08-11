@@ -39,7 +39,7 @@ return new class extends Migration
                 $table->string('url')->nullable();
                 $table->timestamps();
 
-                $table->index(['user_id', 'is_read', 'kategori']);
+                $table->index(['user_id', 'is_read', 'kategori'], 'idx_notifikasi_filter');
             });
         }
 

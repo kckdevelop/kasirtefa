@@ -60,7 +60,7 @@ return new class extends Migration
                 $table->timestamps();
                 $table->softDeletes();
 
-                $table->index(['kategori_alat_id', 'kode_alat', 'slug', 'kondisi', 'status_ketersediaan']);
+                $table->index(['kategori_alat_id', 'kode_alat', 'slug', 'kondisi', 'status_ketersediaan'], 'idx_alat_filter');
             });
         }
 
@@ -81,7 +81,7 @@ return new class extends Migration
                 $table->foreignId('uploaded_by')->constrained('users')->onDelete('cascade');
                 $table->timestamps();
 
-                $table->index(['alat_id', 'jenis']);
+                $table->index(['alat_id', 'jenis'], 'idx_dok_alat_jenis');
             });
         }
 
@@ -146,7 +146,7 @@ return new class extends Migration
                 $table->timestamps();
                 $table->softDeletes();
 
-                $table->index(['kode_peminjaman', 'peminjam_id', 'status', 'tanggal_pinjam', 'tanggal_kembali_rencana']);
+                $table->index(['kode_peminjaman', 'peminjam_id', 'status', 'tanggal_pinjam', 'tanggal_kembali_rencana'], 'idx_peminjaman_filter');
             });
         }
 
@@ -165,7 +165,7 @@ return new class extends Migration
                 $table->enum('status_item', ['dipinjam', 'dikembalikan', 'rusak', 'hilang'])->default('dipinjam');
                 $table->timestamps();
 
-                $table->index(['peminjaman_alat_id', 'alat_id', 'status_item']);
+                $table->index(['peminjaman_alat_id', 'alat_id', 'status_item'], 'idx_detail_peminjaman_filter');
             });
         }
 

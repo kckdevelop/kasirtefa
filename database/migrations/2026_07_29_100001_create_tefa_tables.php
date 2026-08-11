@@ -51,7 +51,7 @@ return new class extends Migration
                 $table->timestamps();
                 $table->softDeletes();
 
-                $table->index(['kategori_produk_id', 'kode_produk', 'slug', 'is_ready', 'stok']);
+                $table->index(['kategori_produk_id', 'kode_produk', 'slug', 'is_ready', 'stok'], 'idx_produk_filter');
             });
         }
 
@@ -110,7 +110,7 @@ return new class extends Migration
                 $table->timestamps();
                 $table->softDeletes();
 
-                $table->index(['kode_transaksi', 'tanggal', 'user_id', 'status', 'metode_pembayaran']);
+                $table->index(['kode_transaksi', 'tanggal', 'user_id', 'status', 'metode_pembayaran'], 'idx_transaksi_filter');
             });
         }
 
@@ -126,7 +126,7 @@ return new class extends Migration
                 $table->text('catatan')->nullable();
                 $table->timestamps();
 
-                $table->index(['transaksi_penjualan_id', 'produk_id']);
+                $table->index(['transaksi_penjualan_id', 'produk_id'], 'idx_detail_penjualan_filter');
             });
         }
     }
