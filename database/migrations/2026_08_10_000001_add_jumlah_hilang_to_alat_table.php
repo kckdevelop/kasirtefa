@@ -8,9 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('alat', function (Blueprint $table) {
-            $table->integer('jumlah_hilang')->default(0)->after('jumlah_rusak_berat');
-        });
+        if (!Schema::hasColumn('alat', 'jumlah_hilang')) {
+            Schema::table('alat', function (Blueprint $table) {
+                $table->integer('jumlah_hilang')->default(0)->after('jumlah_rusak_berat');
+            });
+        }
     }
 
     public function down(): void

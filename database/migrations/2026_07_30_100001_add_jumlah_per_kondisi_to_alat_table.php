@@ -9,11 +9,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('alat', function (Blueprint $table) {
-            // Tambah kolom jumlah per kondisi setelah kolom jumlah_tersedia
-            $table->integer('jumlah_baik')->default(0)->after('jumlah_tersedia');
-            $table->integer('jumlah_cukup')->default(0)->after('jumlah_baik');
-            $table->integer('jumlah_rusak_ringan')->default(0)->after('jumlah_cukup');
-            $table->integer('jumlah_rusak_berat')->default(0)->after('jumlah_rusak_ringan');
+            if (!Schema::hasColumn('alat', 'jumlah_baik')) {
+                $table->integer('jumlah_baik')->default(0)->after('jumlah_tersedia');
+            }
+            if (!Schema::hasColumn('alat', 'jumlah_cukup')) {
+                $table->integer('jumlah_cukup')->default(0)->after('jumlah_baik');
+            }
+            if (!Schema::hasColumn('alat', 'jumlah_rusak_ringan')) {
+                $table->integer('jumlah_rusak_ringan')->default(0)->after('jumlah_cukup');
+            }
+            if (!Schema::hasColumn('alat', 'jumlah_rusak_berat')) {
+                $table->integer('jumlah_rusak_berat')->default(0)->after('jumlah_rusak_ringan');
+            }
         });
     }
 
