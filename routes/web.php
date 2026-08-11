@@ -1,27 +1,16 @@
 <?php
 
 use App\Http\Controllers\Api\V1\Tefa\LaporanPenjualanController;
+use App\Http\Controllers\Web\AlatWebController;
 use App\Http\Controllers\Web\AuthWebController;
 use App\Http\Controllers\Web\DashboardWebController;
 use App\Http\Controllers\Web\KasirWebController;
-use App\Http\Controllers\Web\TefahWebController;
-use App\Http\Controllers\Web\AlatWebController;
+use App\Http\Controllers\Web\LaporanWebController;
 use App\Http\Controllers\Web\PelangganWebController;
-use App\Models\Alat;
-use App\Models\DendaPeminjaman;
-use App\Models\KategoriAlat;
-use App\Models\KategoriProduk;
-use App\Models\LisensiAplikasi;
-use App\Models\PeminjamanAlat;
-use App\Models\PengaturanAplikasi;
-use App\Models\Produk;
-use App\Models\StokKeluar;
-use App\Models\StokMasuk;
-use App\Models\TransaksiPenjualan;
-use App\Models\User;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Web\PengaturanWebController;
+use App\Http\Controllers\Web\TefahWebController;
+use App\Http\Controllers\Web\UserWebController;
 use Illuminate\Support\Facades\Route;
-use Spatie\Permission\Models\Role;
 
 Route::get('/', [AuthWebController::class, 'showLogin'])->name('home');
 
@@ -40,42 +29,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/tefa/transaksi/{id}/cetak-struk', [LaporanPenjualanController::class, 'struk'])->name('tefa.transaksi.cetak-struk');
 
     // Management User & Role
-    Route::get('/users', function () {
-        $users = User::with('roles')->latest()->paginate(15);
-        $roles = Role::all();
-        return view('users.index', compact('users', 'roles'));
-    })->name('users.index');
-
-    Route::post('/users', function (Request $request) {
-        $data = $request->validate([
-            'nama' => 'required|string|max:100',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6',
-            'role' => 'required|exists:roles,name',
-            'nomor_induk' => 'nullable|string',
-            'kelas' => 'nullable|string',
-            'jurusan' => 'nullable|string',
-        ]);
-        $user = User::create([
-            'nama' => $data['nama'],
-            'name' => $data['nama'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
-            'nomor_induk' => $data['nomor_induk'],
-            'kelas' => $data['kelas'],
-            'jurusan' => $data['jurusan'],
-            'status' => 'aktif',
-        ]);
-        $user->assignRole($data['role']);
-        return back()->with('success', 'User berhasil ditambahkan');
-    })->name('users.store');
-
-    Route::put('/users/{id}/toggle-status', function ($id) {
-        $user = User::findOrFail($id);
-        $user->status = $user->status === 'aktif' ? 'nonaktif' : 'aktif';
-        $user->save();
-        return back()->with('success', 'Status user berhasil diperbarui');
-    })->name('users.toggle-status');
+    Route::get('/users', [UserWebController::class, 'index'])->name('users.index');
+    Route::post('/users', [UserWebController::class, 'store'])->name('users.store');
+    Route::put('/users/{id}/toggle-status', [UserWebController::class, 'toggleStatus'])->name('users.toggle-status');
 
     // TEFa Modules Web Views — connected to TefahWebController
     Route::get('/tefa/kategori', [TefahWebController::class, 'kategoriIndex'])->name('tefa.kategori.index');
@@ -142,53 +98,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/alat/denda/{denda}/bayar', [AlatWebController::class, 'dendaBayar'])->name('alat.denda.bayar');
 
     // Web Reports Views
-    Route::get('/laporan/penjualan', function (Request $request) {
-        $service = app(App\Services\LaporanService::class);
-        $report = $service->laporanPenjualan($request->all());
-        $laporan = $report;
-        $transaksi = TransaksiPenjualan::with('kasir')->latest()->paginate(15);
-        $kategori = KategoriProduk::all();
-        $filter = [
-            'tanggal_mulai' => $request->input('tanggal_mulai', date('Y-m-01')),
-            'tanggal_selesai' => $request->input('tanggal_selesai', date('Y-m-d')),
-        ];
-        return view('laporan.penjualan', compact('report', 'laporan', 'transaksi', 'kategori', 'filter'));
-    })->name('laporan.penjualan');
-
-    Route::get('/laporan/peminjaman', function (Request $request) {
-        $service = app(App\Services\LaporanService::class);
-        $report = $service->laporanPeminjaman($request->all());
-        $laporan = $report;
-        $peminjaman = PeminjamanAlat::with(['peminjam', 'denda'])->latest('tanggal_pinjam')->paginate(15);
-        $filter = [
-            'tanggal_mulai' => $request->input('tanggal_mulai', date('Y-m-01')),
-            'tanggal_selesai' => $request->input('tanggal_selesai', date('Y-m-d')),
-        ];
-        return view('laporan.peminjaman', compact('report', 'laporan', 'peminjaman', 'filter'));
-    })->name('laporan.peminjaman');
-
-    Route::get('/laporan/inventaris', function (Request $request) {
-        $service = app(App\Services\LaporanService::class);
-        $report = $service->laporanInventaris($request->all());
-        return view('laporan.inventaris', compact('report'));
-    })->name('laporan.inventaris');
-
-    Route::get('/laporan/kondisi-alat', function () {
-        $service = app(App\Services\LaporanService::class);
-        $report = $service->laporanKondisiAlat();
-        return view('laporan.kondisi-alat', compact('report'));
-    })->name('laporan.kondisi-alat');
+    Route::get('/laporan/penjualan', [LaporanWebController::class, 'penjualan'])->name('laporan.penjualan');
+    Route::get('/laporan/peminjaman', [LaporanWebController::class, 'peminjaman'])->name('laporan.peminjaman');
+    Route::get('/laporan/inventaris', [LaporanWebController::class, 'inventaris'])->name('laporan.inventaris');
+    Route::get('/laporan/kondisi-alat', [LaporanWebController::class, 'kondisiAlat'])->name('laporan.kondisi-alat');
 
     // Pengaturan Web
-    Route::get('/pengaturan', function () {
-        $pengaturan = PengaturanAplikasi::all()->keyBy('kunci');
-        return view('pengaturan.index', compact('pengaturan'));
-    })->name('pengaturan.index');
-
-    Route::post('/pengaturan', function (Request $request) {
-        foreach ($request->except('_token') as $key => $val) {
-            PengaturanAplikasi::updateOrCreate(['kunci' => $key], ['nilai' => $val]);
-        }
-        return back()->with('success', 'Pengaturan berhasil disimpan');
-    })->name('pengaturan.update');
+    Route::get('/pengaturan', [PengaturanWebController::class, 'index'])->name('pengaturan.index');
+    Route::post('/pengaturan', [PengaturanWebController::class, 'update'])->name('pengaturan.update');
 });

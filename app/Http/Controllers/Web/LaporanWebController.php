@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
-use App\Models\TransaksiPenjualan;
+use App\Models\KategoriProduk;
 use App\Models\PeminjamanAlat;
+use App\Models\TransaksiPenjualan;
 use App\Services\LaporanService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -15,7 +16,6 @@ class LaporanWebController extends Controller
 
     private function parseFilter(Request $request): array
     {
-        // Handle quick period selection
         $periode = $request->input('periode');
         $start   = $request->input('tanggal_mulai', Carbon::now()->startOfMonth()->toDateString());
         $end     = $request->input('tanggal_selesai', Carbon::now()->toDateString());
@@ -33,7 +33,6 @@ class LaporanWebController extends Controller
     {
         $filter = $this->parseFilter($request);
 
-        // Export handlers
         if ($request->export === 'excel') {
             return $this->laporanService->exportPenjualanExcel($filter);
         }
@@ -41,16 +40,12 @@ class LaporanWebController extends Controller
             return $this->laporanService->exportPenjualanPdf($filter);
         }
 
-        $laporan = $this->laporanService->ringkasanPenjualan($filter);
+        $report = $this->laporanService->laporanPenjualan($request->all());
+        $laporan = $report;
+        $transaksi = TransaksiPenjualan::with('kasir')->latest()->paginate(15);
+        $kategori = KategoriProduk::all();
 
-        $transaksi = TransaksiPenjualan::with(['kasir', 'items'])
-            ->whereDate('tanggal', '>=', $filter['tanggal_mulai'])
-            ->whereDate('tanggal', '<=', $filter['tanggal_selesai'])
-            ->where('status', 'selesai')
-            ->latest('tanggal')
-            ->paginate(25);
-
-        return view('laporan.penjualan', compact('laporan', 'transaksi', 'filter'));
+        return view('laporan.penjualan', compact('report', 'laporan', 'transaksi', 'kategori', 'filter'));
     }
 
     public function peminjaman(Request $request)
@@ -64,16 +59,23 @@ class LaporanWebController extends Controller
             return $this->laporanService->exportPeminjamanPdf($filter);
         }
 
-        $laporan = $this->laporanService->ringkasanPeminjaman($filter);
+        $report = $this->laporanService->laporanPeminjaman($request->all());
+        $laporan = $report;
+        $peminjaman = PeminjamanAlat::with(['peminjam', 'denda'])->latest('tanggal_pinjam')->paginate(15);
 
-        $peminjaman = PeminjamanAlat::with(['peminjam', 'items.alat'])
-            ->whereDate('tanggal_pinjam', '>=', $filter['tanggal_mulai'])
-            ->whereDate('tanggal_pinjam', '<=', $filter['tanggal_selesai'])
-            ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status))
-            ->latest('tanggal_pinjam')
-            ->paginate(25);
+        return view('laporan.peminjaman', compact('report', 'laporan', 'peminjaman', 'filter'));
+    }
 
-        return view('laporan.peminjaman', compact('laporan', 'peminjaman', 'filter'));
+    public function inventaris(Request $request)
+    {
+        $report = $this->laporanService->laporanInventaris($request->all());
+        return view('laporan.inventaris', compact('report'));
+    }
+
+    public function kondisiAlat()
+    {
+        $report = $this->laporanService->laporanKondisiAlat();
+        return view('laporan.kondisi-alat', compact('report'));
     }
 
     public function stok(Request $request)
