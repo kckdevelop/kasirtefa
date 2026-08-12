@@ -79,6 +79,18 @@ php artisan view:cache
 
 ---
 
-## 3. Catatan Penting untuk SQLite di Production
-- **Izin File & Folder**: Pastikan direktori `database/` dan file `database/database.sqlite` memiliki izin akses `read/write` oleh web server (misal `www-data` / `nginx` / `apache`).
-- **Backup**: Untuk melakukan backup database, Anda cukup menyalin file `database/database.sqlite`.
+## 3. TroubleShooting: Jika Deployment FAILED "Database migrations failed"
+
+Jika Anda mengalami error seperti `[FAILED] DEPLOYMENT ERROR: Database migrations failed during deployment`:
+
+1. **Hapus / Ubah Environment Variables di Dashboard Layanan Cloud (PaaS)**:
+   - Di platform deployment seperti Railway, Render, Koyeb, Coolify, Fly.io, dsb., variabel lingkungan yang ada di **Dashboard Cloud / Environment Variables tab** akan **MENIMPA (override)** file `.env` di git repository.
+   - Pastikan di Dashboard Cloud Anda sudah diset:
+     - `DB_CONNECTION=sqlite`
+   - Hapus atau kosongkan variabel berikut dari Dashboard Cloud jika ada: `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`.
+
+2. **Izin File & Folder**:
+   - Pastikan direktori `database/` dan file `database/database.sqlite` memiliki izin akses `read/write` oleh web server (misal `www-data` / `nginx` / `apache`).
+
+3. **Auto-Creation Database SQLite**:
+   - `composer.json` telah dilengkapi skrip otomatis `@php -r "file_exists('database/database.sqlite') || touch('database/database.sqlite');"` pada perintah `post-autoload-dump` sehingga file SQLite dibuat otomatis saat deployment build.
