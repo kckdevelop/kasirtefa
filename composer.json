@@ -58,7 +58,7 @@
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi",
-            "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\""
+            "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite'); @chmod('database', 0777); @chmod('database/database.sqlite', 0777);\""
         ],
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"

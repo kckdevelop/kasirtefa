@@ -35,7 +35,34 @@ return [
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DB_URL'),
-            'database' => env('DB_DATABASE', database_path('database.sqlite')),
+            'database' => (function () {
+                $db = env('DB_DATABASE');
+                if (!$db) {
+                    $path = database_path('database.sqlite');
+                } elseif ($db === ':memory:') {
+                    return ':memory:';
+                } elseif (file_exists($db)) {
+                    $path = $db;
+                } elseif (file_exists(database_path($db))) {
+                    $path = database_path($db);
+                } else {
+                    $path = (str_contains($db, '/') || str_contains($db, '\\')) ? $db : database_path($db);
+                }
+
+                $dir = dirname($path);
+                if (is_dir($dir)) {
+                    @chmod($dir, 0777);
+                } else {
+                    @mkdir($dir, 0777, true);
+                }
+
+                if (!file_exists($path)) {
+                    @touch($path);
+                }
+                @chmod($path, 0777);
+
+                return $path;
+            })(),
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
             'busy_timeout' => null,
