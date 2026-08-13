@@ -246,8 +246,11 @@ class TefahWebController extends Controller
         ]);
 
         $todayStr = Carbon::now()->format('Ymd');
-        $lastCount = StokMasuk::whereDate('created_at', Carbon::today())->count();
-        $kode = 'SM-' . $todayStr . '-' . str_pad($lastCount + 1, 4, '0', STR_PAD_LEFT);
+        $count = StokMasuk::whereDate('created_at', Carbon::today())->count();
+        do {
+            $count++;
+            $kode = 'SM-' . $todayStr . '-' . str_pad($count, 4, '0', STR_PAD_LEFT);
+        } while (StokMasuk::where('kode_transaksi', $kode)->exists());
 
         $validSumber = ['produksi', 'pembelian', 'donasi', 'lainnya'];
         $sumberInput = strtolower($data['sumber'] ?? 'produksi');
@@ -297,8 +300,11 @@ class TefahWebController extends Controller
         }
 
         $todayStr = Carbon::now()->format('Ymd');
-        $lastCount = StokKeluar::whereDate('created_at', Carbon::today())->count();
-        $kode = 'SK-' . $todayStr . '-' . str_pad($lastCount + 1, 4, '0', STR_PAD_LEFT);
+        $count = StokKeluar::whereDate('created_at', Carbon::today())->count();
+        do {
+            $count++;
+            $kode = 'SK-' . $todayStr . '-' . str_pad($count, 4, '0', STR_PAD_LEFT);
+        } while (StokKeluar::where('kode_transaksi', $kode)->exists());
 
         $validTujuan = ['penjualan', 'penggunaan', 'rusak', 'kadaluarsa', 'lainnya'];
         $tujuanInput = strtolower($data['tujuan'] ?? $data['alasan'] ?? 'penggunaan');

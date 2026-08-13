@@ -16,7 +16,9 @@ class StokService
         return DB::transaction(function () use ($data, $userId) {
             $produk = Produk::findOrFail($data['produk_id']);
             $todayStr = Carbon::now()->format('Ymd');
-            $kode = 'SM-' . $todayStr . '-' . strtoupper(substr(uniqid(), -4));
+            do {
+                $kode = 'SM-' . $todayStr . '-' . strtoupper(substr(uniqid(), -4));
+            } while (StokMasuk::where('kode_transaksi', $kode)->exists());
 
             $stokMasuk = StokMasuk::create([
                 'produk_id' => $produk->id,
@@ -44,7 +46,9 @@ class StokService
             }
 
             $todayStr = Carbon::now()->format('Ymd');
-            $kode = 'SK-' . $todayStr . '-' . strtoupper(substr(uniqid(), -4));
+            do {
+                $kode = 'SK-' . $todayStr . '-' . strtoupper(substr(uniqid(), -4));
+            } while (StokKeluar::where('kode_transaksi', $kode)->exists());
 
             $stokKeluar = StokKeluar::create([
                 'produk_id' => $produk->id,

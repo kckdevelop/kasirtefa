@@ -23,8 +23,13 @@ class PenjualanService
             ->whereDate('created_at', Carbon::today())
             ->count();
             
-        $sequence = str_pad($lastCount + 1, 4, '0', STR_PAD_LEFT);
-        return $prefix . $sequence;
+        do {
+            $lastCount++;
+            $sequence = str_pad($lastCount, 4, '0', STR_PAD_LEFT);
+            $kode = $prefix . $sequence;
+        } while (TransaksiPenjualan::withTrashed()->where('kode_transaksi', $kode)->exists());
+
+        return $kode;
     }
 
     public function hitungTotal(array $items, float $diskonPersen = 0, float $nominalBayar = 0)
@@ -96,7 +101,7 @@ class PenjualanService
                 'catatan' => $data['catatan'] ?? null,
             ]);
 
-            foreach ($calculated['items'] as $item) {
+            foreach ($calculated['items'] as $index => $item) {
                 DetailPenjualan::create([
                     'transaksi_penjualan_id' => $transaksi->id,
                     'produk_id' => $item['produk']->id,
@@ -109,10 +114,20 @@ class PenjualanService
                 // Kurangi stok produk
                 $item['produk']->decrement('stok', $item['jumlah']);
 
+                // Generate unique transaction code for stok keluar per item
+                $baseKodeStok = 'SK-' . substr($kode, 4);
+                $kodeStok = $baseKodeStok . '-' . sprintf('%02d', $index + 1);
+
+                $suffix = 1;
+                while (StokKeluar::where('kode_transaksi', $kodeStok)->exists()) {
+                    $kodeStok = $baseKodeStok . '-' . sprintf('%02d', $index + 1) . '-' . $suffix;
+                    $suffix++;
+                }
+
                 // Catat stok keluar
                 StokKeluar::create([
                     'produk_id' => $item['produk']->id,
-                    'kode_transaksi' => 'SK-' . substr($kode, 4),
+                    'kode_transaksi' => $kodeStok,
                     'tanggal' => $now->toDateString(),
                     'jumlah' => $item['jumlah'],
                     'tujuan' => 'penjualan',
@@ -138,6 +153,11 @@ class PenjualanService
 
             return $transaksi->load(['items.produk', 'kasir']);
         });
+    }
+
+    public function prosesPenjualan(array $data, int $userId)
+    {
+        return $this->createTransaksi($data, $userId);
     }
 
     public function batalkanTransaksi(int $id, int $userId)
