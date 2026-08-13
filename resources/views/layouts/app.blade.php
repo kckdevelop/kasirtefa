@@ -46,11 +46,28 @@
     @yield('styles')
 </head>
 <body class="h-full text-slate-800 antialiased" x-data="{ sidebarOpen: false }">
-    <div class="min-h-screen flex flex-col md:flex-row">
+    <div class="min-h-screen flex flex-col lg:flex-row">
+        <!-- Overlay Backdrop (mobile & tablet) -->
+        <div
+            x-show="sidebarOpen"
+            x-transition:enter="transition-opacity ease-linear duration-300"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition-opacity ease-linear duration-300"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            @click="sidebarOpen = false"
+            class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
+            style="display: none;"
+        ></div>
+
         <!-- Sidebar -->
-        <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'" class="fixed inset-y-0 left-0 z-50 w-64 bg-navy-900 text-white transition-transform duration-300 ease-in-out md:static md:translate-x-0 flex flex-col shadow-xl">
+        <aside
+            :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+            class="fixed inset-y-0 left-0 z-50 w-64 bg-navy-900 text-white transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 flex flex-col shadow-xl"
+        >
             <!-- Brand Logo -->
-            <div class="h-16 flex items-center px-6 bg-navy-800 border-b border-slate-700/50">
+            <div class="h-16 flex items-center justify-between px-6 bg-navy-800 border-b border-slate-700/50 flex-shrink-0">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center font-bold text-lg justify-center shadow-lg shadow-blue-500/30 text-white">
                         <i class="fa-solid fa-graduation-cap"></i>
@@ -60,10 +77,14 @@
                         <p class="text-xs text-blue-300 font-medium">Teaching Factory System</p>
                     </div>
                 </div>
+                <!-- Close button (mobile & tablet only) -->
+                <button @click="sidebarOpen = false" class="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/50 transition-colors">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
             </div>
 
             <!-- Navigation Links -->
-            <nav class="flex-1 overflow-y-auto px-4 py-4 space-y-6">
+            <nav class="flex-1 overflow-y-auto px-4 py-4 space-y-6" @click="if (window.innerWidth < 1024) sidebarOpen = false">
                 <!-- Group: Main -->
                 <div>
                     <p class="px-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Utama</p>
@@ -135,6 +156,19 @@
                     </a>
                 </div>
 
+                <!-- Group: Sewa Gedung / Lab -->
+                <div>
+                    <p class="px-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Modul Sewa Gedung</p>
+                    <a href="{{ route('sewa.gedung.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('sewa.gedung.*') ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                        <i class="fa-solid fa-building w-5 text-center"></i>
+                        <span>Data Gedung & Fasilitas</span>
+                    </a>
+                    <a href="{{ route('sewa.transaksi.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('sewa.transaksi.*') ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                        <i class="fa-solid fa-calendar-check w-5 text-center"></i>
+                        <span>Transaksi Sewa Gedung</span>
+                    </a>
+                </div>
+
                 <!-- Group: Laporan & Sistem -->
                 <div>
                     <p class="px-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Laporan & Pengaturan</p>
@@ -149,6 +183,10 @@
                     <a href="{{ route('laporan.inventaris') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('laporan.inventaris') ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                         <i class="fa-solid fa-boxes-stacked w-5 text-center"></i>
                         <span>Laporan Inventaris</span>
+                    </a>
+                    <a href="{{ route('sewa.laporan.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('sewa.laporan.*') ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                        <i class="fa-solid fa-building-columns w-5 text-center"></i>
+                        <span>Laporan Sewa Gedung</span>
                     </a>
                     <a href="{{ route('users.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('users.*') ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                         <i class="fa-solid fa-users w-5 text-center"></i>
@@ -182,10 +220,16 @@
         <!-- Main Content Area -->
         <div class="flex-1 flex flex-col min-w-0 bg-slate-50">
             <!-- Topbar -->
-            <header class="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-40 shadow-sm">
-                <div class="flex items-center gap-4">
-                    <button @click="sidebarOpen = !sidebarOpen" class="text-slate-600 hover:text-slate-900 md:hidden">
-                        <i class="fa-solid fa-bars text-xl"></i>
+            <header class="h-16 bg-white border-b border-slate-200 px-4 lg:px-6 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <!-- Hamburger Button: visible on mobile & tablet, hidden on lg+ -->
+                    <button
+                        @click="sidebarOpen = !sidebarOpen"
+                        class="lg:hidden p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                        aria-label="Toggle menu"
+                    >
+                        <i x-show="!sidebarOpen" class="fa-solid fa-bars text-xl"></i>
+                        <i x-show="sidebarOpen" class="fa-solid fa-xmark text-xl" style="display:none;"></i>
                     </button>
                     <h2 class="text-lg font-bold text-slate-800">@yield('title', 'Dashboard')</h2>
                 </div>

@@ -4,12 +4,13 @@
 
 @section('content')
 <div class="space-y-6">
-    {{-- Stat Cards Grid: Row 1 (TEFa) --}}
+
+    {{-- Stat Cards Grid: Row 1 (TEFa & Alat) --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {{-- Card 1: Omzet Bulan Ini --}}
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
             <div>
-                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Omzet Bulan Ini</p>
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Omzet Penjualan Bln Ini</p>
                 <h3 class="text-2xl font-bold text-slate-900 mt-1">Rp {{ number_format($omzetBulanIni, 0, ',', '.') }}</h3>
                 <span class="text-xs font-medium inline-flex items-center gap-1 mt-2
                     {{ $pertumbuhanOmzet >= 0 ? 'text-emerald-600' : 'text-red-500' }}">
@@ -22,7 +23,7 @@
             </div>
         </div>
 
-        {{-- Card 2: Transaksi Hari Ini --}}
+        {{-- Card 2: Total Produk --}}
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
             <div>
                 <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Produk TEFa</p>
@@ -50,68 +51,20 @@
             </div>
         </div>
 
-        {{-- Card 4: Peminjaman Terlambat --}}
+        {{-- Card 4: Sewa Gedung Aktif --}}
+        @php
+            $sewaAktifCount = collect($sewaGedungCalendar)->whereIn('status_sewa', ['booking', 'disetujui', 'berlangsung'])->count();
+        @endphp
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
             <div>
-                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Peminjaman Terlambat</p>
-                <h3 class="text-2xl font-bold text-rose-600 mt-1">{{ number_format($peminjamanTerlambat->count()) }} Kasus</h3>
-                <span class="text-xs font-medium text-rose-500 inline-flex items-center gap-1 mt-2">
-                    <i class="fa-solid fa-clock"></i> Perlu Tindakan
-                </span>
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Penyewaan Gedung</p>
+                <h3 class="text-2xl font-bold text-blue-600 mt-1">{{ $sewaAktifCount }} Terjadwal</h3>
+                <a href="{{ route('sewa.transaksi.index') }}" class="text-xs font-medium text-blue-600 hover:underline inline-flex items-center gap-1 mt-2">
+                    <i class="fa-solid fa-building"></i> Kelola Gedung &rarr;
+                </a>
             </div>
-            <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl">
-                <i class="fa-solid fa-clock-rotate-left"></i>
-            </div>
-        </div>
-    </div>
-
-    {{-- Ringkasan Transaksi: Row 2 --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {{-- Stok Masuk Bulan Ini --}}
-        <div class="bg-gradient-to-br from-teal-500 to-teal-600 p-5 rounded-2xl shadow-sm text-white flex items-center justify-between">
-            <div>
-                <p class="text-xs font-semibold text-teal-100 uppercase tracking-wider">Stok Masuk Bln Ini</p>
-                <h3 class="text-2xl font-bold mt-1">{{ number_format($stokMasukBulanIni) }}</h3>
-                <span class="text-xs text-teal-200 mt-1 block">unit masuk gudang</span>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-xl">
-                <i class="fa-solid fa-arrow-down-to-bracket"></i>
-            </div>
-        </div>
-
-        {{-- Stok Keluar Bulan Ini --}}
-        <div class="bg-gradient-to-br from-orange-500 to-orange-600 p-5 rounded-2xl shadow-sm text-white flex items-center justify-between">
-            <div>
-                <p class="text-xs font-semibold text-orange-100 uppercase tracking-wider">Stok Keluar Bln Ini</p>
-                <h3 class="text-2xl font-bold mt-1">{{ number_format($stokKeluarBulanIni) }}</h3>
-                <span class="text-xs text-orange-200 mt-1 block">unit keluar gudang</span>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-xl">
-                <i class="fa-solid fa-arrow-up-from-bracket"></i>
-            </div>
-        </div>
-
-        {{-- Lisensi Aktif --}}
-        <div class="bg-gradient-to-br from-violet-500 to-violet-600 p-5 rounded-2xl shadow-sm text-white flex items-center justify-between">
-            <div>
-                <p class="text-xs font-semibold text-violet-100 uppercase tracking-wider">Lisensi Aktif</p>
-                <h3 class="text-2xl font-bold mt-1">{{ number_format($lisensiAktif) }}</h3>
-                <span class="text-xs text-violet-200 mt-1 block">{{ $lisensiSegera }} segera berakhir</span>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-xl">
-                <i class="fa-solid fa-key"></i>
-            </div>
-        </div>
-
-        {{-- Transaksi Hari Ini --}}
-        <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-5 rounded-2xl shadow-sm text-white flex items-center justify-between">
-            <div>
-                <p class="text-xs font-semibold text-blue-100 uppercase tracking-wider">Transaksi Hari Ini</p>
-                <h3 class="text-2xl font-bold mt-1">{{ number_format($transaksiHariIni) }}</h3>
-                <span class="text-xs text-blue-200 mt-1 block">transaksi lunas</span>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-xl">
-                <i class="fa-solid fa-chart-line"></i>
+            <div class="w-12 h-12 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center text-xl">
+                <i class="fa-solid fa-calendar-check"></i>
             </div>
         </div>
     </div>
@@ -134,21 +87,159 @@
     </div>
     @endif
 
-    @if($lisensiSegera > 0)
-    <div class="bg-violet-50 border border-violet-200 rounded-2xl p-5 flex items-center gap-4">
-        <i class="fa-solid fa-key text-violet-500 text-2xl"></i>
-        <div>
-            <h4 class="font-bold text-violet-900 text-sm">{{ $lisensiSegera }} Lisensi Aplikasi Akan Segera Berakhir</h4>
-            <p class="text-xs text-violet-600 mt-0.5">Cek dan perbarui lisensi sebelum kadaluarsa.</p>
-        </div>
-        <a href="{{ route('tefa.lisensi.index') }}?status=aktif"
-            class="ml-auto text-xs font-semibold text-violet-600 hover:text-violet-800 whitespace-nowrap">
-            Lihat Lisensi &rarr;
-        </a>
-    </div>
-    @endif
+    {{-- ── KALENDER AGENDA PENYEWAAN GEDUNG / LAB ── --}}
+    <div x-data="kalenderSewa" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
 
-    {{-- Tables Grid --}}
+        {{-- Kalender Header Controls --}}
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-lg font-bold">
+                    <i class="fa-solid fa-calendar-days"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-800 text-base">Kalender Agenda Penyewaan Gedung & Lab</h3>
+                    <p class="text-xs text-slate-500">Jadwal tanggal sewa gedung/ruang lab yang terisi</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button @click="goToday()"
+                    class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs transition-all">
+                    Hari Ini
+                </button>
+                <div class="flex items-center bg-slate-100 rounded-lg p-1">
+                    <button @click="prevMonth()" class="w-8 h-8 flex items-center justify-center hover:bg-white rounded-md text-slate-600 transition-all">
+                        <i class="fa-solid fa-chevron-left text-xs"></i>
+                    </button>
+                    <span class="px-3 font-bold text-slate-800 text-sm min-w-[130px] text-center" x-text="monthNames[month] + ' ' + year"></span>
+                    <button @click="nextMonth()" class="w-8 h-8 flex items-center justify-center hover:bg-white rounded-md text-slate-600 transition-all">
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {{-- Grid Kalender --}}
+        <div>
+            {{-- Header Hari --}}
+            <div class="grid grid-cols-7 gap-1 text-center font-bold text-xs text-slate-500 uppercase tracking-wider mb-2">
+                <template x-for="(d, idx) in dayNames" :key="idx">
+                    <div class="py-2 rounded-lg" :class="idx === 0 ? 'text-rose-500' : 'text-slate-600'" x-text="d"></div>
+                </template>
+            </div>
+
+            {{-- Day Cells --}}
+            <div class="grid grid-cols-7 gap-1.5">
+                {{-- Empty Padding Cells --}}
+                <template x-for="p in firstDayOfWeek" :key="'pad-' + p">
+                    <div class="min-h-[75px] bg-slate-50/50 rounded-xl border border-slate-100/50"></div>
+                </template>
+
+                {{-- Days of Month --}}
+                <template x-for="day in daysInMonth" :key="'day-' + day">
+                    <div
+                        @click="selectedDay = (selectedDay === day ? null : day)"
+                        class="min-h-[75px] p-2 rounded-xl border transition-all cursor-pointer flex flex-col justify-between"
+                        :class="{
+                            'ring-2 ring-blue-500 bg-blue-50/40': selectedDay === day,
+                            'bg-blue-50/20 border-blue-200': isToday(day) && selectedDay !== day,
+                            'bg-white border-slate-200 hover:border-blue-300': !isToday(day) && selectedDay !== day
+                        }">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center"
+                                :class="isToday(day) ? 'bg-blue-600 text-white' : 'text-slate-700'"
+                                x-text="day"></span>
+                            <template x-if="getRentalsForDay(day).length > 0">
+                                <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                            </template>
+                        </div>
+
+                        {{-- Rental Color Badges inside Day Cell --}}
+                        <div class="space-y-1 mt-1">
+                            <template x-for="r in getRentalsForDay(day)" :key="r.id">
+                                <div class="px-1.5 py-0.5 rounded text-[10px] font-bold truncate shadow-xs border"
+                                    :class="r.color"
+                                    :title="r.nama_gedung + ' (' + r.nama_penyewa + ')'">
+                                    <span x-text="r.nama_gedung"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        {{-- KETERANGAN & AGENDA KEGIATAN GEDUNG (LIST DI BAWAH KALENDER) --}}
+        <div class="border-t border-slate-100 pt-5 space-y-4">
+            <div class="flex items-center justify-between">
+                <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-blue-600"></i>
+                    <span>Keterangan Agenda Kegiatan Gedung</span>
+                    <span x-show="selectedDay" class="text-xs font-normal text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
+                        Tanggal <span x-text="selectedDay + ' ' + monthNames[month] + ' ' + year"></span>
+                    </span>
+                    <span x-show="!selectedDay" class="text-xs font-normal text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                        Bulan <span x-text="monthNames[month] + ' ' + year"></span>
+                    </span>
+                </h4>
+
+                <button x-show="selectedDay" @click="selectedDay = null" class="text-xs text-slate-500 hover:text-slate-800 underline">
+                    Tampilkan Semua Bulan Ini
+                </button>
+            </div>
+
+            {{-- Event Items Cards --}}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <template x-for="r in (selectedDay ? getRentalsForDay(selectedDay) : getRentalsForCurrentMonth())" :key="'evt-' + r.id">
+                    <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-white hover:shadow-md transition-all flex items-start justify-between gap-3">
+                        <div class="flex items-start gap-3">
+                            {{-- Color Marker Badge --}}
+                            <div class="w-4 h-12 rounded-lg shrink-0 mt-0.5" :class="r.color"></div>
+                            <div>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h5 class="font-bold text-slate-900 text-sm" x-text="r.nama_gedung"></h5>
+                                    <span class="text-[10px] font-mono px-2 py-0.5 bg-slate-200 text-slate-600 rounded-md font-semibold" x-text="r.kode_gedung"></span>
+                                </div>
+                                <p class="text-xs font-semibold text-slate-700 mt-1">
+                                    <i class="fa-solid fa-user mr-1 text-slate-400"></i> Penyewa: <span x-text="r.nama_penyewa"></span>
+                                    <span x-show="r.instansi_penyewa" x-text="'(' + r.instansi_penyewa + ')'" class="text-slate-500 font-normal"></span>
+                                </p>
+                                <p class="text-xs text-blue-700 font-bold mt-1">
+                                    <i class="fa-solid fa-clock mr-1"></i>
+                                    <span x-text="formatDateRange(r.tanggal_mulai, r.tanggal_selesai)"></span>
+                                    <span class="text-slate-500 font-normal" x-text="'(' + r.lama_sewa + ' Hari)'"></span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="text-right shrink-0 flex flex-col justify-between items-end h-full">
+                            <span class="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase border"
+                                :class="{
+                                    'bg-amber-100 text-amber-700 border-amber-200': r.status_sewa === 'booking',
+                                    'bg-blue-100 text-blue-700 border-blue-200': r.status_sewa === 'disetujui',
+                                    'bg-violet-100 text-violet-700 border-violet-200': r.status_sewa === 'berlangsung',
+                                    'bg-emerald-100 text-emerald-700 border-emerald-200': r.status_sewa === 'selesai'
+                                }"
+                                x-text="r.status_sewa">
+                            </span>
+                            <a :href="'/sewa/transaksi/' + r.id" class="text-xs text-blue-600 hover:text-blue-800 font-semibold mt-3 block">
+                                Detail &rarr;
+                            </a>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            {{-- Empty State --}}
+            <div x-show="(selectedDay ? getRentalsForDay(selectedDay) : getRentalsForCurrentMonth()).length === 0"
+                class="text-center py-8 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-slate-400 text-xs">
+                <i class="fa-solid fa-calendar-xmark text-3xl mb-2 block text-slate-300"></i>
+                Tidak ada agenda penyewaan gedung pada tanggal/bulan yang dipilih.
+            </div>
+        </div>
+    </div>
+
+    {{-- Tables Grid: Penjualan & Peminjaman Terbaru --}}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {{-- Recent Sales Table --}}
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
@@ -286,5 +377,98 @@
         </div>
     </div>
     @endif
+
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    // Pass PHP data to JS before Alpine initializes
+    window.__sewaGedungData = @json($sewaGedungCalendar);
+
+    document.addEventListener('alpine:init', function () {
+        Alpine.data('kalenderSewa', function () {
+            return {
+                year: new Date().getFullYear(),
+                month: new Date().getMonth(),
+                monthNames: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+                dayNames: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
+                rentals: window.__sewaGedungData || [],
+                selectedDay: null,
+
+                nextMonth() {
+                    if (this.month === 11) { this.month = 0; this.year++; }
+                    else { this.month++; }
+                    this.selectedDay = null;
+                },
+
+                prevMonth() {
+                    if (this.month === 0) { this.month = 11; this.year--; }
+                    else { this.month--; }
+                    this.selectedDay = null;
+                },
+
+                goToday() {
+                    this.year = new Date().getFullYear();
+                    this.month = new Date().getMonth();
+                    this.selectedDay = new Date().getDate();
+                },
+
+                get daysInMonth() {
+                    return new Date(this.year, this.month + 1, 0).getDate();
+                },
+
+                get firstDayOfWeek() {
+                    return new Date(this.year, this.month, 1).getDay();
+                },
+
+                getRentalsForDay(dayNum) {
+                    if (!dayNum) return [];
+                    var m = String(this.month + 1).padStart(2, '0');
+                    var d = String(dayNum).padStart(2, '0');
+                    var dateStr = this.year + '-' + m + '-' + d;
+                    return this.rentals.filter(function(r) {
+                        return dateStr >= r.tanggal_mulai && dateStr <= r.tanggal_selesai;
+                    });
+                },
+
+                getRentalsForCurrentMonth() {
+                    var m = String(this.month + 1).padStart(2, '0');
+                    var startStr = this.year + '-' + m + '-01';
+                    var endStr = this.year + '-' + m + '-' + String(this.daysInMonth).padStart(2, '0');
+                    return this.rentals.filter(function(r) {
+                        return (r.tanggal_mulai <= endStr && r.tanggal_selesai >= startStr);
+                    });
+                },
+
+                isToday(dayNum) {
+                    var now = new Date();
+                    return now.getDate() === dayNum && now.getMonth() === this.month && now.getFullYear() === this.year;
+                },
+
+                formatDateIndo(dateStr) {
+                    if (!dateStr) return '-';
+                    var parts = dateStr.split('-');
+                    if (parts.length < 3) return dateStr;
+                    var y = parts[0];
+                    var mn = this.monthNames[parseInt(parts[1], 10) - 1];
+                    var d = parseInt(parts[2], 10);
+                    return d + ' ' + mn + ' ' + y;
+                },
+
+                formatDateRange(startStr, endStr) {
+                    if (startStr === endStr) return this.formatDateIndo(startStr);
+                    var p1 = startStr.split('-');
+                    var p2 = endStr.split('-');
+                    var m1 = this.monthNames[parseInt(p1[1], 10) - 1];
+                    var m2 = this.monthNames[parseInt(p2[1], 10) - 1];
+                    if (p1[0] === p2[0] && p1[1] === p2[1]) {
+                        return parseInt(p1[2], 10) + ' - ' + parseInt(p2[2], 10) + ' ' + m1 + ' ' + p1[0];
+                    }
+                    return parseInt(p1[2], 10) + ' ' + m1 + ' - ' + parseInt(p2[2], 10) + ' ' + m2 + ' ' + p2[0];
+                }
+            };
+        });
+    });
+</script>
 @endsection

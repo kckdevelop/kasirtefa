@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\NotifikasiController;
 use App\Http\Controllers\Api\V1\PengaturanController;
 use App\Http\Controllers\Api\V1\ProfilController;
+use App\Http\Controllers\Api\V1\SewaGedungController;
 use App\Http\Controllers\Api\V1\Tefa\KategoriProdukController;
 use App\Http\Controllers\Api\V1\Tefa\LaporanPenjualanController;
 use App\Http\Controllers\Api\V1\Tefa\ProdukController;
@@ -185,5 +186,14 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::put('/pengaturan', [PengaturanController::class, 'updateBatch'])->name('pengaturan.api.update-batch');
         Route::get('/pengaturan/{kunci}', [PengaturanController::class, 'getByKey'])->name('pengaturan.api.show');
         Route::put('/pengaturan/{kunci}', [PengaturanController::class, 'updateByKey'])->name('pengaturan.api.update');
+
+        // Sewa Gedung / Lab
+        Route::prefix('sewa')->group(function () {
+            Route::get('/gedung', [SewaGedungController::class, 'gedungIndex'])->name('sewa.api.gedung.index');
+            Route::get('/gedung/{id}', [SewaGedungController::class, 'gedungShow'])->name('sewa.api.gedung.show');
+            Route::get('/transaksi', [SewaGedungController::class, 'transaksiIndex'])->name('sewa.api.transaksi.index');
+            Route::post('/transaksi', [SewaGedungController::class, 'transaksiStore'])->name('sewa.api.transaksi.store');
+            Route::get('/transaksi/{id}', [SewaGedungController::class, 'transaksiShow'])->name('sewa.api.transaksi.show');
+        });
     });
 });

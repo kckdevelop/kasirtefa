@@ -8,6 +8,7 @@ use App\Http\Controllers\Web\KasirWebController;
 use App\Http\Controllers\Web\LaporanWebController;
 use App\Http\Controllers\Web\PelangganWebController;
 use App\Http\Controllers\Web\PengaturanWebController;
+use App\Http\Controllers\Web\SewaGedungWebController;
 use App\Http\Controllers\Web\TefahWebController;
 use App\Http\Controllers\Web\UserWebController;
 use Illuminate\Support\Facades\Route;
@@ -96,6 +97,27 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/alat/denda', [AlatWebController::class, 'dendaIndex'])->name('alat.denda.index');
     Route::post('/alat/denda/{denda}/bayar', [AlatWebController::class, 'dendaBayar'])->name('alat.denda.bayar');
+
+    // Modul Sewa Gedung / Lab
+    Route::get('/sewa/gedung', [SewaGedungWebController::class, 'gedungIndex'])->name('sewa.gedung.index');
+    Route::post('/sewa/gedung', [SewaGedungWebController::class, 'gedungStore'])->name('sewa.gedung.store');
+    Route::put('/sewa/gedung/{id}', [SewaGedungWebController::class, 'gedungUpdate'])->name('sewa.gedung.update');
+    Route::delete('/sewa/gedung/{id}', [SewaGedungWebController::class, 'gedungDestroy'])->name('sewa.gedung.destroy');
+
+    Route::post('/sewa/fasilitas', [SewaGedungWebController::class, 'fasilitasStore'])->name('sewa.fasilitas.store');
+    Route::put('/sewa/fasilitas/{id}', [SewaGedungWebController::class, 'fasilitasUpdate'])->name('sewa.fasilitas.update');
+    Route::delete('/sewa/fasilitas/{id}', [SewaGedungWebController::class, 'fasilitasDestroy'])->name('sewa.fasilitas.destroy');
+    Route::get('/sewa/gedung/{gedungId}/fasilitas-json', [SewaGedungWebController::class, 'getFasilitasJson'])->name('sewa.gedung.fasilitas-json');
+
+    Route::get('/sewa/transaksi', [SewaGedungWebController::class, 'transaksiIndex'])->name('sewa.transaksi.index');
+    Route::get('/sewa/transaksi/create', [SewaGedungWebController::class, 'transaksiCreate'])->name('sewa.transaksi.create');
+    Route::post('/sewa/transaksi', [SewaGedungWebController::class, 'transaksiStore'])->name('sewa.transaksi.store');
+    Route::get('/sewa/transaksi/{id}', [SewaGedungWebController::class, 'transaksiShow'])->name('sewa.transaksi.show');
+    Route::put('/sewa/transaksi/{id}/status', [SewaGedungWebController::class, 'transaksiUpdateStatus'])->name('sewa.transaksi.update-status');
+    Route::get('/sewa/transaksi/{id}/cetak', [SewaGedungWebController::class, 'transaksiCetak'])->name('sewa.transaksi.cetak');
+    Route::delete('/sewa/transaksi/{id}', [SewaGedungWebController::class, 'transaksiDestroy'])->name('sewa.transaksi.destroy');
+
+    Route::get('/sewa/laporan', [SewaGedungWebController::class, 'laporanIndex'])->name('sewa.laporan.index');
 
     // Web Reports Views
     Route::get('/laporan/penjualan', [LaporanWebController::class, 'penjualan'])->name('laporan.penjualan');
